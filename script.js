@@ -21,19 +21,14 @@ function selectedInterests() {
 }
 
 function splitLines(text) {
-  return text
-    .split('\n')
-    .map(line => line.trim())
-    .filter(Boolean);
+  return text.split('\n').map(line => line.trim()).filter(Boolean);
 }
 
 function dateRange(start, end) {
   const dates = [];
   if (!start || !end) return dates;
-
   const current = new Date(start + 'T12:00:00');
   const last = new Date(end + 'T12:00:00');
-
   while (current <= last && dates.length < 14) {
     dates.push(new Date(current));
     current.setDate(current.getDate() + 1);
@@ -41,13 +36,25 @@ function dateRange(start, end) {
   return dates;
 }
 
+function datePart(datetimeValue) {
+  return datetimeValue ? datetimeValue.slice(0, 10) : '';
+}
+
+function timePart(datetimeValue) {
+  return datetimeValue ? datetimeValue.slice(11, 16) : '';
+}
+
+function getTripDays() {
+  const arrivalDate = datePart(get('arrival'));
+  const departureDate = datePart(get('departure'));
+  const dates = dateRange(arrivalDate, departureDate);
+  if (dates.length) return dates;
+  return [null, null, null];
+}
+
 function formatDate(date, index) {
   if (!date) return `Giorno ${index + 1}`;
-  return date.toLocaleDateString('it-IT', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long'
-  });
+  return date.toLocaleDateString('it-IT', { weekday: 'long', day: '2-digit', month: 'long' });
 }
 
 function addMinutes(time, minutes) {
@@ -73,41 +80,29 @@ function categoryOf(place) {
   if (p.includes('ristorante') || p.includes('pranzo') || p.includes('cena') || p.includes('bere')) return 'Food';
   if (p.includes('bar') || p.includes('rooftop') || p.includes('club') || p.includes('locale')) return 'Sera';
   if (p.includes('museo') || p.includes('ateneo') || p.includes('parlamento') || p.includes('chiesa')) return 'Cultura';
-  if (p.includes('parco') || p.includes('terme')) return 'Relax';
+  if (p.includes('parco')) return 'Relax';
   return 'Tappa';
 }
 
 function extractPlacesFromSources(text) {
   const candidates = [];
   const lines = splitLines(text);
-
   lines.forEach(line => {
     const cleaned = line.replace(/https?:\/\/\S+/g, '').trim();
     const chunks = cleaned.split(/[,;•|-]/).map(x => x.trim()).filter(Boolean);
     chunks.forEach(chunk => {
       const words = chunk.split(' ');
       const hasCapital = /[A-ZÀ-Ú][a-zà-ú]+/.test(chunk);
-      if (hasCapital && words.length <= 6 && chunk.length > 3) {
-        candidates.push(chunk);
-      }
+      if (hasCapital && words.length <= 6 && chunk.length > 3) candidates.push(chunk);
     });
   });
-
   return [...new Set(candidates)].slice(0, 8);
-}
-
-function getTripDays() {
-  const start = get('startDate');
-  const end = get('endDate');
-  const dates = dateRange(start, end);
-  if (dates.length) return dates;
-  return [null, null, null];
 }
 
 function getCapacity() {
   const pace = get('pace');
-  if (pace === 'Rilassato' || pace === 'relaxed') return 3;
-  if (pace === 'Intenso' || pace === 'intense') return 6;
+  if (pace === 'Rilassato') return 3;
+  if (pace === 'Intenso') return 6;
   return 4;
 }
 
@@ -116,31 +111,22 @@ function distributePlaces(places, days, capacity) {
   const longPlaces = [];
   const normalPlaces = [];
   const eveningPlaces = [];
-
   places.forEach(place => {
     const lower = place.toLowerCase();
     if (lower.includes('terme') || lower.includes('therme')) longPlaces.push(place);
     else if (lower.includes('bar') || lower.includes('locale') || lower.includes('rooftop') || lower.includes('club') || lower.includes('cena')) eveningPlaces.push(place);
     else normalPlaces.push(place);
   });
-
   longPlaces.forEach((place, i) => {
     const target = Math.min(days.length - 1, Math.max(0, Math.floor(days.length / 2) + i));
     dayPlans[target].push(place);
   });
-
   normalPlaces.forEach(place => {
-    const target = dayPlans
-      .map((items, index) => ({ index, score: items.length }))
-      .sort((a, b) => a.score - b.score)[0].index;
+    const target = dayPlans.map((items, index) => ({ index, score: items.length })).sort((a, b) => a.score - b.score)[0].index;
     if (dayPlans[target].length < capacity) dayPlans[target].push(place);
     else dayPlans[(target + 1) % days.length].push(place);
   });
-
-  eveningPlaces.forEach((place, i) => {
-    dayPlans[i % days.length].push(place);
-  });
-
+  eveningPlaces.forEach((place, i) => dayPlans[i % days.length].push(place));
   return dayPlans;
 }
 
@@ -166,28 +152,32 @@ function buildItinerary() {
   const dayPlans = distributePlaces(places, days, capacity);
 
   const warnings = [];
+  if (!get('arrival') || !get('departure')) warnings.push('Inserisci arrivo e partenza volo per calcolare correttamente i giorni.');
   if (!places.length) warnings.push('Aggiungi almeno qualche tappa: l’app può costruire il giro solo se ha luoghi da distribuire.');
   if (sourcePlaces.length) warnings.push(`Ho estratto automaticamente ${sourcePlaces.length} possibili tappe dalle note/fonti.`);
   if (places.length > days.length * capacity) warnings.push('Il viaggio sembra pieno: alcune giornate potrebbero essere intense.');
 
   let text = `ITINERARIO SENZA GIRI - ${destination}\n`;
   text += `Base: ${hotel}\n`;
+  text += `Arrivo volo: ${valueOf('arrival')}\n`;
+  text += `Partenza volo: ${valueOf('departure')}\n`;
   text += `Mezzi: ${transport}\n`;
   text += `Interessi: ${interests.length ? interests.join(', ') : 'non specificati'}\n\n`;
 
   const html = [];
-  html.push(`<div class="summary-card"><h3>${destination}</h3><p><strong>Base:</strong> ${hotel}<br><strong>Mezzi:</strong> ${transport}<br><strong>Interessi:</strong> ${interests.length ? interests.join(', ') : 'non specificati'}</p></div>`);
+  html.push(`<div class="summary-card"><h3>${destination}</h3><p><strong>Base:</strong> ${hotel}<br><strong>Arrivo volo:</strong> ${valueOf('arrival')}<br><strong>Partenza volo:</strong> ${valueOf('departure')}<br><strong>Mezzi:</strong> ${transport}<br><strong>Interessi:</strong> ${interests.length ? interests.join(', ') : 'non specificati'}</p></div>`);
 
   if (warnings.length) {
-    html.push('<div class="alerts"><h3>Alert intelligenti</h3>');
+    html.push('<div class="alerts"><h3>Alert</h3>');
     warnings.forEach(w => html.push(`<p>⚠️ ${w}</p>`));
     html.push('</div>');
   }
 
   dayPlans.forEach((items, index) => {
     const dateLabel = formatDate(days[index], index);
-    const startTime = index === 0 && get('arrival') ? '15:00' : '09:30';
-    let current = startTime;
+    let current = '09:30';
+    if (index === 0 && timePart(get('arrival'))) current = addMinutes(timePart(get('arrival')), 90);
+    if (index === days.length - 1 && timePart(get('departure')) && current > timePart(get('departure'))) current = '09:00';
 
     text += `GIORNO ${index + 1} - ${dateLabel}\n`;
     text += `Partenza consigliata: ${hotel}\n`;
@@ -207,16 +197,14 @@ function buildItinerary() {
       const category = categoryOf(place);
       const end = addMinutes(current, visit);
       const query = `${place} ${destination}`;
-
       text += `- ${current} / ${end}: ${place} (${category}, visita circa ${visit} min, spostamento stimato ${travel} min)\n`;
-
       html.push(`<div class="timeline-item"><time>${current}</time><div><strong>${place}</strong><p>${category} · visita circa ${visit} min · spostamento stimato ${travel} min</p><a href="${mapsLink(query)}" target="_blank" rel="noopener">Apri su Google Maps</a></div></div>`);
       current = end;
     });
 
     current = addMinutes(current, 20);
     text += `Rientro/pausa consigliata: ${current}.\n\n`;
-    html.push(`<div class="timeline-item base"><time>${current}</time><div><strong>Rientro o pausa</strong><p>Momento cuscinetto per doccia, relax o spostamento serale.</p></div></div>`);
+    html.push(`<div class="timeline-item base"><time>${current}</time><div><strong>Rientro o pausa</strong><p>Momento cuscinetto per relax o spostamento serale.</p></div></div>`);
     html.push('</div></article>');
   });
 
@@ -228,13 +216,12 @@ function buildItinerary() {
     html.push('</div>');
   }
 
-  text += `\nNota: questa è una pianificazione automatica demo. Per distanze reali e orari di apertura, verifica sempre su Maps e siti ufficiali.`;
-
+  text += `\nNota: questa e una pianificazione automatica demo. Verifica distanze reali e orari di apertura.`;
   return { html: html.join(''), text };
 }
 
 function buildPrompt() {
-  return `Sei un travel planner esperto. Crea un itinerario ottimizzato senza giri inutili usando questi dati:\n\nDestinazione: ${valueOf('destination')}\nDate: ${valueOf('startDate')} - ${valueOf('endDate')}\nHotel/base: ${valueOf('hotel')}\nArrivo: ${valueOf('arrival')}\nPartenza: ${valueOf('departure')}\nRitmo: ${valueOf('pace')}\nMezzi: ${valueOf('transport')}\nInteressi: ${selectedInterests().join(', ') || 'non specificati'}\n\nTappe:\n${valueOf('places')}\n\nPrenotazioni:\n${valueOf('bookings')}\n\nFonti e note:\n${valueOf('sources')}\n\nNote personali:\n${valueOf('extraNotes')}\n\nRegole: raggruppa per zona, evita avanti e indietro, rispetta orari fissi, segnala criticità, scrivi in modo sequenziale.`;
+  return `Dati viaggio per ottimizzazione:\nDestinazione: ${valueOf('destination')}\nHotel/base: ${valueOf('hotel')}\nArrivo volo: ${valueOf('arrival')}\nPartenza volo: ${valueOf('departure')}\nRitmo: ${valueOf('pace')}\nMezzi: ${valueOf('transport')}\nInteressi: ${selectedInterests().join(', ') || 'non specificati'}\n\nTappe:\n${valueOf('places')}\n\nPrenotazioni:\n${valueOf('bookings')}\n\nFonti e note:\n${valueOf('sources')}\n\nNote personali:\n${valueOf('extraNotes')}`;
 }
 
 function showItinerary() {
@@ -243,15 +230,7 @@ function showItinerary() {
   output.value = buildPrompt();
   result.classList.remove('hidden');
   resultTitle.textContent = 'Itinerario generato';
-
-  let itineraryBox = document.getElementById('itineraryBox');
-  if (!itineraryBox) {
-    itineraryBox = document.createElement('div');
-    itineraryBox.id = 'itineraryBox';
-    itineraryBox.className = 'itinerary-box';
-    output.parentNode.insertBefore(itineraryBox, output);
-  }
-
+  const itineraryBox = document.getElementById('itineraryBox');
   itineraryBox.innerHTML = plan.html;
   output.classList.add('hidden');
   result.scrollIntoView({ behavior: 'smooth' });
@@ -263,29 +242,16 @@ form.addEventListener('submit', event => {
 });
 
 copyButton.addEventListener('click', async () => {
-  const text = output.value || buildPrompt();
+  const text = lastItineraryText || output.value || buildPrompt();
   try {
     await navigator.clipboard.writeText(text);
-    copyButton.textContent = 'Prompt copiato!';
+    copyButton.textContent = 'Copiato!';
   } catch (error) {
     output.classList.remove('hidden');
+    output.value = text;
     output.select();
     document.execCommand('copy');
-    copyButton.textContent = 'Prompt copiato!';
+    copyButton.textContent = 'Copiato!';
   }
-  setTimeout(() => { copyButton.textContent = 'Copia prompt AI'; }, 1600);
+  setTimeout(() => { copyButton.textContent = 'Copia dati'; }, 1600);
 });
-
-const copyItineraryButton = document.createElement('button');
-copyItineraryButton.type = 'button';
-copyItineraryButton.className = 'button ghost copy-itinerary';
-copyItineraryButton.textContent = 'Copia itinerario';
-copyItineraryButton.addEventListener('click', async () => {
-  if (!lastItineraryText) return;
-  await navigator.clipboard.writeText(lastItineraryText);
-  copyItineraryButton.textContent = 'Itinerario copiato!';
-  setTimeout(() => { copyItineraryButton.textContent = 'Copia itinerario'; }, 1600);
-});
-
-const resultHeader = document.querySelector('.result-header');
-if (resultHeader) resultHeader.appendChild(copyItineraryButton);
