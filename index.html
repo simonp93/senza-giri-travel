@@ -1,250 +1,69 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Senza Giri Travel</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
-  <div class="noise"></div>
+  <main class="section builder-section">
+    <div class="section-title center">
+      <span class="kicker">Planner automatico</span>
+      <h1>Senza Giri Travel</h1>
+      <p>Compila il viaggio e genera subito un itinerario nella pagina.</p>
+    </div>
 
-  <header class="hero">
-    <nav class="nav glass">
-      <a class="brand" href="#top" aria-label="Senza Giri Home">
-        <span class="brand-mark">SG</span>
-        <span>Senza Giri</span>
-      </a>
-      <div class="nav-links">
-        <a href="#workflow">Metodo</a>
-        <a href="#builder">Builder</a>
-        <a href="#result">Output</a>
-      </div>
-    </nav>
-
-    <section id="top" class="hero-grid">
-      <div class="hero-copy">
-        <div class="kicker">AI travel board • senza avanti e indietro</div>
-        <h1>Dal caos dei video salvati a un itinerario che ha senso.</h1>
-        <p class="subtitle">
-          Inserisci voli, hotel, tappe, prenotazioni e appunti raccolti online. La web app ti prepara un prompt pulito per ottenere da ChatGPT un piano ordinato per zone.
-        </p>
-        <div class="hero-actions">
-          <a class="button primary" href="#builder">Crea il tuo prompt</a>
-          <a class="button ghost" href="#workflow">Guarda il flusso</a>
+    <form id="tripForm" class="travel-form">
+      <div class="form-card big-card">
+        <div class="card-head"><span class="icon-badge">1</span><div><h3>Dati base</h3><p>Date, hotel e orari.</p></div></div>
+        <label>Destinazione <input id="destination" type="text" placeholder="Es. Tirana" required></label>
+        <div class="two-columns">
+          <label>Data inizio <input id="startDate" type="date"></label>
+          <label>Data fine <input id="endDate" type="date"></label>
         </div>
-        <div class="proof-row">
-          <span>Hotel come base</span>
-          <span>Vincoli reali</span>
-          <span>Tappe raggruppate</span>
+        <label>Hotel o base <input id="hotel" type="text" placeholder="Nome hotel o zona"></label>
+        <div class="two-columns">
+          <label>Arrivo <input id="arrival" type="datetime-local"></label>
+          <label>Partenza <input id="departure" type="datetime-local"></label>
         </div>
       </div>
 
-      <div class="visual-board" aria-label="Anteprima visuale del prodotto">
-        <div class="map-card">
-          <div class="map-topline">
-            <span>Bucarest</span>
-            <small>3 giorni</small>
-          </div>
-          <svg viewBox="0 0 480 360" role="img" aria-label="Mappa stilizzata con percorso ottimizzato">
-            <defs>
-              <linearGradient id="routeGradient" x1="0" x2="1">
-                <stop offset="0%" stop-color="#ff7a59" />
-                <stop offset="55%" stop-color="#ffd166" />
-                <stop offset="100%" stop-color="#35d0ba" />
-              </linearGradient>
-            </defs>
-            <path class="street s1" d="M35 85 C110 50 160 120 245 92 C335 63 370 105 445 72" />
-            <path class="street s2" d="M52 244 C125 210 190 275 260 232 C330 190 385 212 452 178" />
-            <path class="street s3" d="M95 34 C128 108 100 190 150 330" />
-            <path class="street s4" d="M330 24 C308 100 350 182 315 338" />
-            <path class="park" d="M70 145 C105 100 180 126 188 178 C198 238 118 258 77 222 C48 196 49 170 70 145Z" />
-            <path class="water" d="M400 28 C370 88 416 126 382 180 C350 232 385 282 344 340" />
-            <path class="route" d="M110 260 C120 205 165 188 205 172 C250 154 260 110 308 96 C352 83 374 125 390 160" />
-            <circle class="pin pin-a" cx="110" cy="260" r="10" />
-            <circle class="pin pin-b" cx="205" cy="172" r="10" />
-            <circle class="pin pin-c" cx="308" cy="96" r="10" />
-            <circle class="pin pin-d" cx="390" cy="160" r="10" />
-          </svg>
-          <div class="route-label label-one">Hotel</div>
-          <div class="route-label label-two">Centro vecchio</div>
-          <div class="route-label label-three">Cena 21:30</div>
-        </div>
-
-        <div class="phone-card">
-          <div class="phone-notch"></div>
-          <p class="phone-title">Giorno 2</p>
-          <div class="stop active"><span>09:30</span><strong>Colazione vicino hotel</strong></div>
-          <div class="stop"><span>10:20</span><strong>Ateneo</strong></div>
-          <div class="stop"><span>11:10</span><strong>Carturesti</strong></div>
-          <div class="stop"><span>13:00</span><strong>Pranzo in zona</strong></div>
-          <div class="stop warning"><span>Alert</span><strong>Therme meglio domani</strong></div>
-        </div>
-
-        <div class="source-stack">
-          <div class="source-card rotate-left">TikTok notes<br><strong>12 posti estratti</strong></div>
-          <div class="source-card rotate-right">Blog + Pinterest<br><strong>7 consigli utili</strong></div>
-        </div>
-      </div>
-    </section>
-  </header>
-
-  <main>
-    <section id="workflow" class="section workflow-section">
-      <div class="section-title split">
-        <div>
-          <span class="kicker">Come ragiona</span>
-          <h2>Non una lista di posti. Una giornata costruita intorno alla tua base.</h2>
-        </div>
-        <p>La logica è semplice: prima raccogliamo i vincoli reali, poi scegliamo le tappe, infine chiediamo all'AI di evitare zig zag inutili.</p>
+      <div class="form-card dark-card">
+        <div class="card-head"><span class="icon-badge">2</span><div><h3>Tappe</h3><p>Una tappa per riga.</p></div></div>
+        <label>Tappe desiderate <textarea id="places" rows="10" placeholder="Piazza principale&#10;Museo&#10;Parco&#10;Ristorante tipico"></textarea></label>
+        <label>Prenotazioni <textarea id="bookings" rows="5" placeholder="Giovedi 21:30 cena prenotata"></textarea></label>
+        <label>Appunti e fonti <textarea id="sources" rows="5" placeholder="Incolla luoghi trovati online"></textarea></label>
       </div>
 
-      <div class="workflow">
-        <article class="step-card peach">
-          <small>01</small>
-          <h3>Base reale</h3>
-          <p>Hotel, voli, arrivo, partenza e ritmo del viaggio.</p>
-        </article>
-        <article class="step-card mint">
-          <small>02</small>
-          <h3>Ispirazioni</h3>
-          <p>Luoghi copiati da TikTok, blog, Pinterest, video o appunti personali.</p>
-        </article>
-        <article class="step-card blue">
-          <small>03</small>
-          <h3>Vincoli</h3>
-          <p>Prenotazioni, orari fissi, cose obbligatorie e cose da evitare.</p>
-        </article>
-        <article class="step-card lime">
-          <small>04</small>
-          <h3>Prompt</h3>
-          <p>Un testo strutturato da incollare in ChatGPT per ottenere l'itinerario.</p>
-        </article>
+      <div class="form-card full-width preference-card">
+        <div class="card-head"><span class="icon-badge">3</span><div><h3>Preferenze</h3><p>Ritmo e stile.</p></div></div>
+        <div class="two-columns">
+          <label>Ritmo <select id="pace"><option>Rilassato</option><option selected>Normale</option><option>Intenso</option></select></label>
+          <label>Mezzi <select id="transport"><option>A piedi</option><option selected>A piedi e mezzi pubblici</option><option>Taxi</option><option>Auto</option></select></label>
+        </div>
+        <div class="checkbox-grid">
+          <label><input type="checkbox" name="interest" value="cultura"> Cultura</label>
+          <label><input type="checkbox" name="interest" value="cibo"> Cibo</label>
+          <label><input type="checkbox" name="interest" value="sera"> Sera</label>
+          <label><input type="checkbox" name="interest" value="shopping"> Shopping</label>
+          <label><input type="checkbox" name="interest" value="foto"> Foto</label>
+          <label><input type="checkbox" name="interest" value="relax"> Relax</label>
+        </div>
+        <label>Note personali <textarea id="extraNotes" rows="4" placeholder="Preferenze personali"></textarea></label>
+        <button class="button primary wide" type="submit">Genera itinerario</button>
       </div>
-    </section>
+    </form>
 
-    <section id="builder" class="section builder-section">
-      <div class="section-title center">
-        <span class="kicker">Travel prompt builder</span>
-        <h2>Compila la board del viaggio</h2>
-        <p>Questa versione non usa API a pagamento: crea un prompt perfetto da portare nel tuo ChatGPT.</p>
+    <section id="result" class="result hidden">
+      <div class="result-header">
+        <div><span class="kicker">Itinerario</span><h2>Itinerario generato</h2></div>
+        <button id="copyPrompt" class="button ghost" type="button">Copia dati</button>
       </div>
-
-      <form id="tripForm" class="travel-form">
-        <div class="form-card big-card">
-          <div class="card-head">
-            <span class="icon-badge">✈</span>
-            <div>
-              <h3>Dati base</h3>
-              <p>La cornice reale del viaggio.</p>
-            </div>
-          </div>
-
-          <label>Destinazione
-            <input id="destination" type="text" placeholder="Es. Bucarest" required />
-          </label>
-          <div class="two-columns">
-            <label>Data inizio
-              <input id="startDate" type="date" />
-            </label>
-            <label>Data fine
-              <input id="endDate" type="date" />
-            </label>
-          </div>
-          <label>Hotel / base
-            <input id="hotel" type="text" placeholder="Nome hotel o indirizzo" />
-          </label>
-          <div class="two-columns">
-            <label>Arrivo
-              <input id="arrival" type="datetime-local" />
-            </label>
-            <label>Partenza
-              <input id="departure" type="datetime-local" />
-            </label>
-          </div>
-          <div class="two-columns">
-            <label>Ritmo viaggio
-              <select id="pace">
-                <option>Rilassato</option>
-                <option selected>Normale</option>
-                <option>Intenso</option>
-              </select>
-            </label>
-            <label>Mezzi preferiti
-              <select id="transport">
-                <option>A piedi</option>
-                <option selected>A piedi + mezzi pubblici</option>
-                <option>Taxi / Uber / Bolt</option>
-                <option>Auto</option>
-              </select>
-            </label>
-          </div>
-        </div>
-
-        <div class="form-card dark-card">
-          <div class="card-head">
-            <span class="icon-badge">⌘</span>
-            <div>
-              <h3>Tappe e fonti</h3>
-              <p>Il caos che vuoi trasformare in piano.</p>
-            </div>
-          </div>
-
-          <label>Tappe desiderate
-            <textarea id="places" rows="7" placeholder="Una per riga: attrazioni, quartieri, ristoranti, locali..."></textarea>
-          </label>
-          <label>Prenotazioni o orari fissi
-            <textarea id="bookings" rows="5" placeholder="Es. Sabato 21:30 cena da AUMA"></textarea>
-          </label>
-          <label>Note da TikTok, Pinterest, blog o articoli
-            <textarea id="sources" rows="7" placeholder="Incolla qui testi, link o appunti raccolti online"></textarea>
-          </label>
-        </div>
-
-        <div class="form-card full-width preference-card">
-          <div class="card-head">
-            <span class="icon-badge">◆</span>
-            <div>
-              <h3>Preferenze extra</h3>
-              <p>Aiuta l'AI a scegliere il taglio giusto.</p>
-            </div>
-          </div>
-
-          <div class="checkbox-grid">
-            <label><input type="checkbox" name="interest" value="cultura" /> Cultura</label>
-            <label><input type="checkbox" name="interest" value="cibo tipico" /> Cibo tipico</label>
-            <label><input type="checkbox" name="interest" value="vita notturna" /> Vita notturna</label>
-            <label><input type="checkbox" name="interest" value="shopping" /> Shopping</label>
-            <label><input type="checkbox" name="interest" value="posti instagrammabili" /> Posti instagrammabili</label>
-            <label><input type="checkbox" name="interest" value="esperienze local" /> Esperienze local</label>
-          </div>
-          <label>Note personali
-            <textarea id="extraNotes" rows="4" placeholder="Es. voglio evitare giornate troppo piene, preferisco cenare tardi..."></textarea>
-          </label>
-          <button class="button primary wide" type="submit">Genera prompt senza giri</button>
-        </div>
-      </form>
-
-      <section id="result" class="result hidden">
-        <div class="result-header">
-          <div>
-            <span class="kicker">Output</span>
-            <h2>Prompt pronto per ChatGPT</h2>
-          </div>
-          <button id="copyPrompt" class="button ghost" type="button">Copia prompt</button>
-        </div>
-        <textarea id="promptOutput" readonly></textarea>
-      </section>
+      <div id="itineraryBox" class="itinerary-box"></div>
+      <textarea id="promptOutput" class="hidden" readonly></textarea>
     </section>
   </main>
-
-  <footer class="footer">
-    <p>Senza Giri Travel — MVP gratuito, statico, pubblicato con GitHub Pages.</p>
-  </footer>
-
-  <script src="script.js"></script>
+  <script src="script.js?v=10"></script>
 </body>
 </html>
