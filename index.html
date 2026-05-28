@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Senza Giri Travel</title>
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
   <main class="section builder-section">
@@ -16,16 +16,12 @@
 
     <form id="tripForm" class="travel-form">
       <div class="form-card big-card">
-        <div class="card-head"><span class="icon-badge">1</span><div><h3>Dati base</h3><p>Date, hotel e orari.</p></div></div>
+        <div class="card-head"><span class="icon-badge">1</span><div><h3>Dati base</h3><p>Voli, hotel e base del viaggio.</p></div></div>
         <label>Destinazione <input id="destination" type="text" placeholder="Es. Tirana" required></label>
-        <div class="two-columns">
-          <label>Data inizio <input id="startDate" type="date"></label>
-          <label>Data fine <input id="endDate" type="date"></label>
-        </div>
         <label>Hotel o base <input id="hotel" type="text" placeholder="Nome hotel o zona"></label>
         <div class="two-columns">
-          <label>Arrivo <input id="arrival" type="datetime-local"></label>
-          <label>Partenza <input id="departure" type="datetime-local"></label>
+          <label>Ora arrivo volo nella destinazione <input id="arrival" type="datetime-local"></label>
+          <label>Ora partenza volo di rientro <input id="departure" type="datetime-local"></label>
         </div>
       </div>
 
@@ -64,6 +60,6 @@
       <textarea id="promptOutput" class="hidden" readonly></textarea>
     </section>
   </main>
-  <script src="script.js?v=10"></script>
+  <script src="script.js?v=11"></script>
 </body>
 </html>
