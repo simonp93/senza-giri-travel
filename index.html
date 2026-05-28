@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Senza Giri Travel</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hero">
+    <nav class="nav">
+      <div class="brand">
+        <span class="logo">↗</span>
+        <span>Senza Giri</span>
+      </div>
+      <a class="nav-link" href="#builder">Crea itinerario</a>
+    </nav>
+
+    <section class="hero-content">
+      <p class="eyebrow">Travel Prompt Builder</p>
+      <h1>Tu scegli cosa vedere. Noi lo mettiamo nel percorso giusto.</h1>
+      <p class="subtitle">
+        Raccogli voli, hotel, tappe e fonti online in un unico posto. Genera un prompt pronto per ChatGPT e ottieni un itinerario sequenziale, realistico e senza giri inutili.
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="#builder">Inizia gratis</a>
+        <a class="button secondary" href="#how-it-works">Come funziona</a>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section id="how-it-works" class="section cards-section">
+      <div class="section-heading">
+        <p class="eyebrow">MVP 0.1</p>
+        <h2>Dal caos dei consigli online a un piano ordinato.</h2>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <span>1</span>
+          <h3>Inserisci la base</h3>
+          <p>Date, hotel, voli, ritmo viaggio e mezzi preferiti.</p>
+        </article>
+        <article class="card">
+          <span>2</span>
+          <h3>Aggiungi tappe e fonti</h3>
+          <p>Posti, ristoranti, prenotazioni e appunti da TikTok, Pinterest o blog.</p>
+        </article>
+        <article class="card">
+          <span>3</span>
+          <h3>Copia il prompt</h3>
+          <p>Portalo su ChatGPT per generare l'itinerario ottimizzato.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="builder" class="section builder-section">
+      <div class="section-heading">
+        <p class="eyebrow">Crea il prompt</p>
+        <h2>Compila i dati del viaggio</h2>
+      </div>
+
+      <form id="tripForm" class="form-grid">
+        <div class="panel">
+          <h3>Dati base</h3>
+          <label>Destinazione
+            <input id="destination" type="text" placeholder="Es. Bucarest" required />
+          </label>
+          <div class="two-columns">
+            <label>Data inizio
+              <input id="startDate" type="date" />
+            </label>
+            <label>Data fine
+              <input id="endDate" type="date" />
+            </label>
+          </div>
+          <label>Hotel / base
+            <input id="hotel" type="text" placeholder="Nome hotel o indirizzo" />
+          </label>
+          <div class="two-columns">
+            <label>Arrivo
+              <input id="arrival" type="datetime-local" />
+            </label>
+            <label>Partenza
+              <input id="departure" type="datetime-local" />
+            </label>
+          </div>
+          <div class="two-columns">
+            <label>Ritmo viaggio
+              <select id="pace">
+                <option>Rilassato</option>
+                <option selected>Normale</option>
+                <option>Intenso</option>
+              </select>
+            </label>
+            <label>Mezzi preferiti
+              <select id="transport">
+                <option>A piedi</option>
+                <option selected>A piedi + mezzi pubblici</option>
+                <option>Taxi / Uber / Bolt</option>
+                <option>Auto</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Tappe e vincoli</h3>
+          <label>Tappe desiderate
+            <textarea id="places" rows="7" placeholder="Una per riga: attrazioni, quartieri, ristoranti, locali..."></textarea>
+          </label>
+          <label>Prenotazioni o orari fissi
+            <textarea id="bookings" rows="5" placeholder="Es. Sabato 21:30 cena da AUMA"></textarea>
+          </label>
+          <label>Note da TikTok, Pinterest, blog o articoli
+            <textarea id="sources" rows="7" placeholder="Incolla qui testi, link o appunti raccolti online"></textarea>
+          </label>
+        </div>
+
+        <div class="panel full-width">
+          <h3>Preferenze extra</h3>
+          <div class="checkbox-grid">
+            <label><input type="checkbox" name="interest" value="cultura" /> Cultura</label>
+            <label><input type="checkbox" name="interest" value="cibo tipico" /> Cibo tipico</label>
+            <label><input type="checkbox" name="interest" value="vita notturna" /> Vita notturna</label>
+            <label><input type="checkbox" name="interest" value="shopping" /> Shopping</label>
+            <label><input type="checkbox" name="interest" value="posti instagrammabili" /> Posti instagrammabili</label>
+            <label><input type="checkbox" name="interest" value="esperienze local" /> Esperienze local</label>
+          </div>
+          <label>Note personali
+            <textarea id="extraNotes" rows="4" placeholder="Es. voglio evitare giornate troppo piene, preferisco cenare tardi..."></textarea>
+          </label>
+          <button class="button primary" type="submit">Genera prompt</button>
+        </div>
+      </form>
+
+      <section id="result" class="result hidden">
+        <div class="result-header">
+          <div>
+            <p class="eyebrow">Prompt pronto</p>
+            <h2>Copialo in ChatGPT</h2>
+          </div>
+          <button id="copyPrompt" class="button secondary" type="button">Copia prompt</button>
+        </div>
+        <textarea id="promptOutput" readonly></textarea>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Senza Giri Travel — MVP gratuito senza backend e senza API.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
