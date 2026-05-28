@@ -16,8 +16,7 @@ function valueOf(id) {
 }
 
 function selectedInterests() {
-  const checked = Array.from(document.querySelectorAll('input[name="interest"]:checked'));
-  return checked.map(item => item.value);
+  return Array.from(document.querySelectorAll('input[name="interest"]:checked')).map(item => item.value);
 }
 
 function splitLines(text) {
@@ -45,11 +44,8 @@ function timePart(datetimeValue) {
 }
 
 function getTripDays() {
-  const arrivalDate = datePart(get('arrival'));
-  const departureDate = datePart(get('departure'));
-  const dates = dateRange(arrivalDate, departureDate);
-  if (dates.length) return dates;
-  return [null, null, null];
+  const dates = dateRange(datePart(get('arrival')), datePart(get('departure')));
+  return dates.length ? dates : [null, null, null];
 }
 
 function formatDate(date, index) {
@@ -67,8 +63,8 @@ function addMinutes(time, minutes) {
 function estimateVisit(place) {
   const p = place.toLowerCase();
   if (p.includes('terme') || p.includes('therme')) return 240;
-  if (p.includes('museo') || p.includes('museum') || p.includes('palazzo') || p.includes('parlamento')) return 120;
-  if (p.includes('ristorante') || p.includes('pranzo') || p.includes('cena') || p.includes('bere') || p.includes('food')) return 90;
+  if (p.includes('museo') || p.includes('museum') || p.includes('palazzo') || p.includes('parlamento') || p.includes('bunk')) return 120;
+  if (p.includes('ristorante') || p.includes('pranzo') || p.includes('cena') || p.includes('food')) return 90;
   if (p.includes('bar') || p.includes('rooftop') || p.includes('locale')) return 90;
   if (p.includes('parco') || p.includes('park')) return 75;
   return 60;
@@ -76,21 +72,58 @@ function estimateVisit(place) {
 
 function categoryOf(place) {
   const p = place.toLowerCase();
-  if (p.includes('terme') || p.includes('therme')) return 'Esperienza lunga';
-  if (p.includes('ristorante') || p.includes('pranzo') || p.includes('cena') || p.includes('bere')) return 'Food';
+  if (p.includes('ristorante') || p.includes('pranzo') || p.includes('cena')) return 'Food';
   if (p.includes('bar') || p.includes('rooftop') || p.includes('club') || p.includes('locale')) return 'Sera';
-  if (p.includes('museo') || p.includes('ateneo') || p.includes('parlamento') || p.includes('chiesa')) return 'Cultura';
-  if (p.includes('parco')) return 'Relax';
+  if (p.includes('museo') || p.includes('bunk') || p.includes('palazzo') || p.includes('chiesa')) return 'Cultura';
+  if (p.includes('parco') || p.includes('park')) return 'Relax';
   return 'Tappa';
+}
+
+function starterPlaces(destination) {
+  const city = destination.toLowerCase();
+  if (city.includes('tirana')) {
+    return [
+      'Piazza Skanderbeg',
+      'Moschea Et’hem Bey',
+      'Torre dell’Orologio',
+      'Bunk’Art 2',
+      'Piramide di Tirana',
+      'New Bazaar',
+      'Castello di Tirana',
+      'Grand Park of Tirana',
+      'Blloku',
+      'Ristorante tipico in zona New Bazaar'
+    ];
+  }
+  if (city.includes('bucarest')) {
+    return [
+      'Centro storico',
+      'Carturesti Carusel',
+      'Ateneo Rumeno',
+      'Palazzo del Parlamento',
+      'Parco Herastrau',
+      'Arco di Trionfo',
+      'Therme Bucuresti',
+      'Ristorante tipico in centro'
+    ];
+  }
+  return [
+    'Centro storico',
+    'Piazza principale',
+    'Mercato locale',
+    'Museo principale',
+    'Parco cittadino',
+    'Quartiere caratteristico',
+    'Ristorante tipico',
+    'Passeggiata serale in centro'
+  ];
 }
 
 function extractPlacesFromSources(text) {
   const candidates = [];
-  const lines = splitLines(text);
-  lines.forEach(line => {
+  splitLines(text).forEach(line => {
     const cleaned = line.replace(/https?:\/\/\S+/g, '').trim();
-    const chunks = cleaned.split(/[,;•|-]/).map(x => x.trim()).filter(Boolean);
-    chunks.forEach(chunk => {
+    cleaned.split(/[,;•|-]/).map(x => x.trim()).filter(Boolean).forEach(chunk => {
       const words = chunk.split(' ');
       const hasCapital = /[A-ZÀ-Ú][a-zà-ú]+/.test(chunk);
       if (hasCapital && words.length <= 6 && chunk.length > 3) candidates.push(chunk);
@@ -108,18 +141,12 @@ function getCapacity() {
 
 function distributePlaces(places, days, capacity) {
   const dayPlans = days.map(() => []);
-  const longPlaces = [];
   const normalPlaces = [];
   const eveningPlaces = [];
   places.forEach(place => {
     const lower = place.toLowerCase();
-    if (lower.includes('terme') || lower.includes('therme')) longPlaces.push(place);
-    else if (lower.includes('bar') || lower.includes('locale') || lower.includes('rooftop') || lower.includes('club') || lower.includes('cena')) eveningPlaces.push(place);
+    if (lower.includes('bar') || lower.includes('locale') || lower.includes('rooftop') || lower.includes('club') || lower.includes('blloku') || lower.includes('cena')) eveningPlaces.push(place);
     else normalPlaces.push(place);
-  });
-  longPlaces.forEach((place, i) => {
-    const target = Math.min(days.length - 1, Math.max(0, Math.floor(days.length / 2) + i));
-    dayPlans[target].push(place);
   });
   normalPlaces.forEach(place => {
     const target = dayPlans.map((items, index) => ({ index, score: items.length })).sort((a, b) => a.score - b.score)[0].index;
@@ -143,8 +170,10 @@ function buildItinerary() {
   const hotel = valueOf('hotel');
   const transport = valueOf('transport');
   const interests = selectedInterests();
-  const basePlaces = splitLines(get('places'));
   const sourcePlaces = extractPlacesFromSources(get('sources'));
+  let basePlaces = splitLines(get('places'));
+  const usedFallback = basePlaces.length === 0 && sourcePlaces.length === 0;
+  if (usedFallback) basePlaces = starterPlaces(destination);
   const places = [...new Set([...basePlaces, ...sourcePlaces])];
   const days = getTripDays();
   const capacity = getCapacity();
@@ -153,15 +182,12 @@ function buildItinerary() {
 
   const warnings = [];
   if (!get('arrival') || !get('departure')) warnings.push('Inserisci arrivo e partenza volo per calcolare correttamente i giorni.');
-  if (!places.length) warnings.push('Aggiungi almeno qualche tappa: l’app può costruire il giro solo se ha luoghi da distribuire.');
+  if (usedFallback) warnings.push('Non hai inserito tappe manuali: ho creato una proposta base automatica per la destinazione.');
   if (sourcePlaces.length) warnings.push(`Ho estratto automaticamente ${sourcePlaces.length} possibili tappe dalle note/fonti.`);
   if (places.length > days.length * capacity) warnings.push('Il viaggio sembra pieno: alcune giornate potrebbero essere intense.');
 
   let text = `ITINERARIO SENZA GIRI - ${destination}\n`;
-  text += `Base: ${hotel}\n`;
-  text += `Arrivo volo: ${valueOf('arrival')}\n`;
-  text += `Partenza volo: ${valueOf('departure')}\n`;
-  text += `Mezzi: ${transport}\n`;
+  text += `Base: ${hotel}\nArrivo volo: ${valueOf('arrival')}\nPartenza volo: ${valueOf('departure')}\nMezzi: ${transport}\n`;
   text += `Interessi: ${interests.length ? interests.join(', ') : 'non specificati'}\n\n`;
 
   const html = [];
@@ -177,18 +203,10 @@ function buildItinerary() {
     const dateLabel = formatDate(days[index], index);
     let current = '09:30';
     if (index === 0 && timePart(get('arrival'))) current = addMinutes(timePart(get('arrival')), 90);
-    if (index === days.length - 1 && timePart(get('departure')) && current > timePart(get('departure'))) current = '09:00';
 
-    text += `GIORNO ${index + 1} - ${dateLabel}\n`;
-    text += `Partenza consigliata: ${hotel}\n`;
-
+    text += `GIORNO ${index + 1} - ${dateLabel}\nPartenza consigliata: ${hotel}\n`;
     html.push(`<article class="day-card"><div class="day-head"><span>Giorno ${index + 1}</span><h3>${dateLabel}</h3></div>`);
     html.push(`<div class="timeline"><div class="timeline-item base"><time>${current}</time><div><strong>Partenza dalla base</strong><p>${hotel}</p></div></div>`);
-
-    if (!items.length) {
-      text += `- Giornata libera: aggiungi tappe oppure usala come margine.\n`;
-      html.push(`<div class="timeline-item"><time>libero</time><div><strong>Giornata leggera</strong><p>Aggiungi tappe o usa questa giornata come margine.</p></div></div>`);
-    }
 
     items.forEach((place, placeIndex) => {
       const travel = placeIndex === 0 ? 20 : 18;
@@ -210,9 +228,8 @@ function buildItinerary() {
 
   if (bookings.length) {
     text += `PRENOTAZIONI DA RISPETTARE\n`;
-    bookings.forEach(b => { text += `- ${b.raw}\n`; });
     html.push('<div class="bookings-card"><h3>Prenotazioni inserite</h3>');
-    bookings.forEach(b => html.push(`<p>📌 ${b.raw}</p>`));
+    bookings.forEach(b => { text += `- ${b.raw}\n`; html.push(`<p>📌 ${b.raw}</p>`); });
     html.push('</div>');
   }
 
@@ -230,8 +247,7 @@ function showItinerary() {
   output.value = buildPrompt();
   result.classList.remove('hidden');
   resultTitle.textContent = 'Itinerario generato';
-  const itineraryBox = document.getElementById('itineraryBox');
-  itineraryBox.innerHTML = plan.html;
+  document.getElementById('itineraryBox').innerHTML = plan.html;
   output.classList.add('hidden');
   result.scrollIntoView({ behavior: 'smooth' });
 }
