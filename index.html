@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Senza Giri Travel</title>
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=20">
 </head>
 <body>
   <main class="section builder-section">
     <div class="section-title center">
-      <span class="kicker">Planner automatico</span>
+      <span class="kicker">AI planner</span>
       <h1>Senza Giri Travel</h1>
-      <p>Compila il viaggio e genera subito un itinerario nella pagina.</p>
+      <p>Compila il viaggio e genera un itinerario con AI. La risposta arriva dal backend, non da regole demo nel browser.</p>
     </div>
 
     <form id="tripForm" class="travel-form">
@@ -26,10 +26,10 @@
       </div>
 
       <div class="form-card dark-card">
-        <div class="card-head"><span class="icon-badge">2</span><div><h3>Tappe</h3><p>Una tappa per riga.</p></div></div>
-        <label>Tappe desiderate <textarea id="places" rows="10" placeholder="Piazza principale&#10;Museo&#10;Parco&#10;Ristorante tipico"></textarea></label>
-        <label>Prenotazioni <textarea id="bookings" rows="5" placeholder="Giovedi 21:30 cena prenotata"></textarea></label>
-        <label>Appunti e fonti <textarea id="sources" rows="5" placeholder="Incolla luoghi trovati online"></textarea></label>
+        <div class="card-head"><span class="icon-badge">2</span><div><h3>Tappe e fonti</h3><p>Scrivi tappe, prenotazioni o appunti. Puoi anche lasciare le tappe vuote e chiedere all'AI.</p></div></div>
+        <label>Tappe desiderate <textarea id="places" rows="10" placeholder="Piazza Skanderbeg&#10;BunkArt 2&#10;Piramide di Tirana&#10;New Bazaar"></textarea></label>
+        <label>Prenotazioni <textarea id="bookings" rows="5" placeholder="Sabato 21:30 cena prenotata"></textarea></label>
+        <label>Appunti e fonti <textarea id="sources" rows="5" placeholder="Incolla luoghi trovati online, note da video, blog, Pinterest..."></textarea></label>
       </div>
 
       <div class="form-card full-width preference-card">
@@ -46,20 +46,20 @@
           <label><input type="checkbox" name="interest" value="foto"> Foto</label>
           <label><input type="checkbox" name="interest" value="relax"> Relax</label>
         </div>
-        <label>Note personali <textarea id="extraNotes" rows="4" placeholder="Preferenze personali"></textarea></label>
-        <button class="button primary wide" type="submit">Genera itinerario</button>
+        <label>Note personali <textarea id="extraNotes" rows="4" placeholder="Es. voglio evitare giornate troppo piene, preferisco cenare tardi..."></textarea></label>
+        <button id="generateButton" class="button primary wide" type="submit">Genera itinerario con AI</button>
       </div>
     </form>
 
     <section id="result" class="result hidden">
       <div class="result-header">
-        <div><span class="kicker">Itinerario</span><h2>Itinerario generato</h2></div>
-        <button id="copyPrompt" class="button ghost" type="button">Copia dati</button>
+        <div><span class="kicker">Risposta AI</span><h2>Itinerario generato</h2></div>
+        <button id="copyPrompt" class="button ghost" type="button">Copia itinerario</button>
       </div>
       <div id="itineraryBox" class="itinerary-box"></div>
       <textarea id="promptOutput" class="hidden" readonly></textarea>
     </section>
   </main>
-  <script src="script.js?v=11"></script>
+  <script src="script.js?v=20"></script>
 </body>
 </html>
